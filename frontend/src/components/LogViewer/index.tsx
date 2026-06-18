@@ -25,6 +25,7 @@ import {
 } from '@ant-design/icons';
 import { logsApi, serversApi } from '@/services/api';
 import type { LogEntry, ServerConfig } from '@/types';
+import SmartLogViewer from '@/components/SmartLogViewer';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -301,9 +302,15 @@ ${log.output}
               </div>
               <div>
                 <Text type="secondary" style={{ fontSize: 12 }}>输出内容：</Text>
-                <pre className="log-output">
-                  {viewingLog.output || '(无输出)'}
-                </pre>
+                <div className="log-output smart-log-output">
+                  <SmartLogViewer
+                    stdout={viewingLog.output || ''}
+                    stderr=""
+                    storageKey={`log-${viewingLog.task_id}`}
+                    autoScroll={false}
+                    className="log-detail-viewer"
+                  />
+                </div>
               </div>
             </Space>
           </div>

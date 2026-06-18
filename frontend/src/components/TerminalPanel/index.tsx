@@ -39,6 +39,7 @@ import { serversApi, executeApi, templatesApi } from '@/services/api';
 import { wsService } from '@/services/websocket';
 import { useAppStore } from '@/store';
 import type { ServerConfig, ScriptTemplate } from '@/types';
+import SmartLogViewer from '@/components/SmartLogViewer';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -165,14 +166,6 @@ interface OutputTabProps {
 }
 
 const OutputTab: React.FC<OutputTabProps> = ({ taskId, serverName, stdout, stderr, status, exitCode, onClear }) => {
-  const outputRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight;
-    }
-  }, [stdout, stderr]);
-
   const copyOutput = async () => {
     try {
       await navigator.clipboard.writeText(stdout + stderr);
@@ -198,7 +191,7 @@ const OutputTab: React.FC<OutputTabProps> = ({ taskId, serverName, stdout, stder
   };
 
   return (
-    <div className="output-tab">
+    <div className="output-tab smart-output-tab">
       <div className="output-header">
         <Space>
           <Text style={{ color: '#fff' }}>{serverName}</Text>
@@ -214,17 +207,13 @@ const OutputTab: React.FC<OutputTabProps> = ({ taskId, serverName, stdout, stder
           )}
         </Space>
       </div>
-      <div className="output-content" ref={outputRef}>
-        {stdout.split('\n').map((line, i) => (
-          <div key={`o-${i}`} className="stdout" style={{ color: '#d4d4d4' }}>{line}</div>
-        ))}
-        {stderr.split('\n').map((line, i) => (
-          <div key={`e-${i}`} className="stderr" style={{ color: '#f48771' }}>{line}</div>
-        ))}
-        {!stdout && !stderr && status === 'pending' && (
-          <Text type="secondary" style={{ opacity: 0.6 }}>等待执行...</Text>
-        )}
-      </div>
+      <SmartLogViewer
+        stdout={stdout}
+        stderr={stderr}
+        storageKey={`task-${taskId}`}
+        autoScroll={status === 'running'}
+        className="output-smart-viewer"
+      />
     </div>
   );
 };
